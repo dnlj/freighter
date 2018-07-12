@@ -1,5 +1,6 @@
 **/cache
 premake5.exe
+premake5
 
 **/.vs
 **.vcxproj
