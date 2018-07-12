@@ -3,17 +3,6 @@
 -- TODO: Make this a premake module?
 -- TODO: Clean command so you can rebuild from fresh without redownload. If git will need to run commands (git clean -dfx)
 
--- TODO: Move crates into folder
--- TODO: Move the cache into the crate folders
---[[
-	Project
-		Crates
-			glfw
-				_data
-					... glfw files ...
-				glfw.lua
---]]
-
 freighter = {}
 
 local p = premake
@@ -28,7 +17,6 @@ f.vs["2017"] = require("freighter/vs2017")
 
 f.setCratesDirectory = function(dir)
 	f._cratesDir = path.normalize(path.getabsolute(dir))
-	f._cacheDir = f._cratesDir .."/_cache"
 end
 
 f.use = function(crates)
@@ -103,12 +91,12 @@ f._loadCrate = function(cuid)
 	
 	f._verifyCratesDir()
 	
-	local file = f._cratesDir .."/".. cuid ..".lua"
+	local file = f._cratesDir .."/".. cuid .."/".. cuid ..".lua"
 	
 	if os.isfile(file) then
 		f._crates[cuid] = dofile(file)
 		f._crates[cuid].uid = cuid
-		f._crates[cuid].dir = f._cacheDir .."/".. cuid
+		f._crates[cuid].dir = f._cratesDir .."/".. cuid .."/cache"
 	else
 		f.error("Unable to find crate: ".. cuid)
 	end

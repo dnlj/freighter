@@ -1,2 +1,9 @@
-**/_cache
+**/cache
 premake.exe
+
+**/.vs
+**.vcxproj
+**.vcxproj.user
+**.sln
+**/bin
+**/obj
