@@ -16,9 +16,6 @@ CRATE.addLibraries = function()
 	return "glfw3"
 end
 
-CRATE.preBuild = function(cfg)
-end
-
 local build_vs2017 = function(cfg)
 	local vs = f.vs["2017"]
 	local cmake
@@ -81,9 +78,5 @@ CRATE.build = function(cfg)
 		f.error("Build type \"".. cfg.type .."\" is not supported")
 	end
 end
-
-CRATE.postBuild = function(cfg)
-end
-
 
 return CRATE
