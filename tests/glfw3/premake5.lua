@@ -1,7 +1,7 @@
 require("../../freighter")
 
 
-freighter.setCratesDirectory("../../crates")
+freighter.setCratesDirectory("../../freighter/crates")
 
 -------------------------------------------------------------------------------
 -- Main premake settings
@@ -49,7 +49,7 @@ workspace("TestWorkspace")
 --------------------------------------------------------------------------------
 project("TestProject")
 	freighter.use {
-		"glfw"
+		"glfw3"
 	}
 	
 	files {
