@@ -137,6 +137,10 @@ f._build = function(crate, cfg)
 	cc.arch = cfg.architecture
 	cc.config = f.getBasicConfig(cfg.buildcfg)
 	
+	if not cc.type then
+		f.error("No build type specified")
+	end
+	
 	f.log("Building ", crate.name, " (", table.concat({cc.type, cc.arch, cc.config}, ", "), ")")
 	
 	crate._configs = crate._configs or {}
