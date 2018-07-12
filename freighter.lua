@@ -118,7 +118,7 @@ f._fetch = function(crate)
 			
 			local oldwd = os.getcwd()
 			os.chdir(crate.dir)
-			os.execute("git clean -dfx")
+			os.execute("git clean -dffx")
 			os.chdir(oldwd)
 		else
 			os.execute("git clone ".. crate.source .." ".. crate.dir)
