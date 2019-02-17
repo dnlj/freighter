@@ -158,6 +158,18 @@ f._build = function(crate, cfg)
 	end
 end
 
+f._progress_bar = function(total, current)
+	local pre = "["
+	local post = string.format("] %3d%%", math.floor((current / total) * 100))
+	
+	local w = 80 - #pre - #post
+	local c = (current / total) * w
+	local fill = string.rep("=", math.floor(c))
+	local blank = string.rep(".", math.ceil(w - c))
+	
+	io.write("\r", pre, fill, blank, post)
+end
+
 
 -- TODO: Only include vs stuff if needed
 require("freighter/vs")

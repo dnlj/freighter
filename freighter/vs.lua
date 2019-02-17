@@ -23,8 +23,9 @@ local downloadVSWhere = function()
 			f.error("Unable to find download location for vswhere.exe")
 		end
 		
-		-- TODO: Progress bar
-		local status = http.download(url, "vswhere.exe")
+		f.log("Downloading vswhere.exe")
+		local status = http.download(url, "vswhere.exe", {progress = f._progress_bar})
+		io.write("\n")
 		
 		if status ~= "OK" then
 			f.error("Unable to download vswhere.exe\n".. status)
@@ -69,8 +70,8 @@ local setVSInfo = function()
 	end
 	
 	do -- year
-		if ver.productLineVersion then
-			vs.year = ver.productLineVersion
+		if ver.catalog and ver.catalog.productLineVersion then
+			vs.year = ver.catalog.productLineVersion
 		else
 			f.error("Could not determine Visual Studio year")
 		end
