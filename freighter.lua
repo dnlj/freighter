@@ -12,9 +12,6 @@ local sizeof = function(tbl) local c = 0 for _ in pairs(tbl) do c = c + 1 end re
 f._crates = {}
 f.basicConfigString = [[%{freighter.getBasicConfig(cfg.buildcfg)}]]
 
-f.vs = {}
-f.vs["2017"] = require("freighter/vs2017")
-
 f.setCratesDirectory = function(dir)
 	f._cratesDir = path.normalize(path.getabsolute(dir))
 end
@@ -160,6 +157,13 @@ f._build = function(crate, cfg)
 		crate.build(cc)
 	end
 end
+
+
+-- TODO: Only include vs stuff if needed
+require("freighter/vs")
+f.vs = {}
+f.vs["2017"] = require("freighter/vs2017")
+
 
 newaction {
 	trigger = "freighter",

@@ -1,6 +1,7 @@
 **/cache
 premake5.exe
 premake5
+**/vswhere.exe
 
 **/.vs
 **.vcxproj
