@@ -24,8 +24,7 @@ local downloadVSWhere = function()
 		end
 		
 		f.log("Downloading vswhere.exe")
-		local status = http.download(url, "vswhere.exe", {progress = f._progress_bar})
-		io.write("\n")
+		local status = f.httpDownload(url, "vswhere.exe")
 		
 		if status ~= "OK" then
 			f.error("Unable to download vswhere.exe\n".. status)

@@ -77,6 +77,13 @@ f.moveFiles = function(tbl)
 	end
 end
 
+f.httpDownload = function(url, file, opt)
+	opt = opt or {}
+	opt.progress = opt.progress or f._progress_bar
+	return http.download(url, file, opt),
+		io.write("\n") and nil or nil
+end
+
 f._verifyCratesDir = function()
 	if f._cratesDir == nil then
 		f.error("No crates directory specified.")
