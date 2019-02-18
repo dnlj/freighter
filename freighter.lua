@@ -140,16 +140,14 @@ f._fetch = function(crate)
 	end
 end
 
-f._build = function(crate, cfg)
+f._build = function(crate, act, cfg)
 	local cc = {}
 	
-	cc.type = _ARGS[1]
+	cc.type = act.trigger
 	cc.arch = cfg.architecture
 	cc.config = f.getBasicConfig(cfg.buildcfg)
-	
-	if not cc.type then
-		f.error("No build type specified")
-	end
+	cc._act = act
+	cc._cfg = cfg
 	
 	f.log("Building ", crate.name, " (", table.concat({cc.type, cc.arch, cc.config}, ", "), ")")
 	
@@ -198,13 +196,21 @@ newaction {
 		if sizeof(f._crates) == 0 then return end
 		f._verifyCratesDir()
 		
+		local act = p.action.get(_ARGS[1])
+		f.assert(act, "Invalid action: ".. tostring(_ARGS[1]))
+		
 		for uid, crate in pairs(f._crates) do
 			f.log("=== ", crate.name, " ===")
 			f._fetch(crate)
 			
 			for cfg in p.project.eachconfig(prj) do
+				f.assert(
+					p.action.supportsconfig(act, cfg),
+					"Invalid config for action: ".. tostring(act)
+				)
+				
 				-- TODO: Allow some kind of mapping/settings for builds. Look into using p.api.register
-				f._build(crate, cfg)
+				f._build(crate, act, cfg)
 			end
 		end
 	end,
