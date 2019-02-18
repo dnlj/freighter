@@ -59,7 +59,7 @@ end
 
 f.assert = function(cond, msg)
 	if not cond then
-		f.error(msg)
+		f.error(msg, 1)
 	end
 end
 
