@@ -6,9 +6,7 @@ local downloadVSWhere = function()
 	if not os.isfile("vswhere.exe") then
 		local res, status = http.get("https://api.github.com/repos/Microsoft/vswhere/releases/latest")
 		
-		if status ~= "OK" then
-			f.error("Unable to find download location for vswhere.exe\n".. status)
-		end
+		f.assert(status == "OK", "Unable to find download location for vswhere.exe\n".. status)
 		
 		local assets = json.decode(res).assets
 		local url
@@ -19,32 +17,24 @@ local downloadVSWhere = function()
 			end
 		end
 		
-		if not url then
-			f.error("Unable to find download location for vswhere.exe")
-		end
+		f.assert(url, "Unable to find download location for vswhere.exe")
 		
 		f.log("Downloading vswhere.exe")
 		local status = f.httpDownload(url, "vswhere.exe")
 		
-		if status ~= "OK" then
-			f.error("Unable to download vswhere.exe\n".. status)
-		end
+		f.assert(status == "OK", "Unable to download vswhere.exe\n".. status)
 	end
 end
 
 local getVSWhereInfo = function()
 	-- TODO: add way to pick version
 	local res, err = os.outputof("\"".. vs.where .."\" -nologo -utf8 -format json ".. whereArgs)
-
-	if err ~= 0 then
-		f.error("Could not find Visual Studio vswhere.exe")
-	end
+	
+	f.assert(err == 0, "Could not find Visual Studio vswhere.exe")
 
 	local info = json.decode(res)
 	
-	if #info == 0 then
-		f.error("No Visual Studio installation found")
-	end
+	f.assert(#info ~= 0, "No Visual Studio installation found")
 	
 	return info
 end
@@ -54,9 +44,7 @@ local setVSInfo = function()
 	
 	local max = 1
 	for k,v in pairs(info) do
-		if not v.installationVersion then
-			f.error("Unable to determine Visual Studio version")
-		end
+		f.assert(v.installationVersion, "Unable to determine Visual Studio version")
 		
 		if v.installationVersion > info[max].installationVersion then
 			max = k
@@ -86,11 +74,7 @@ local setVSInfo = function()
 	
 	do -- MSBuild
 		local res, err = os.outputof("\"".. vs.where .."\" -nologo -utf8 -find MSBuild/**/Bin/MSBuild.exe ".. whereArgs)
-
-		if err ~= 0 then
-			f.error("Could not find Visual Studio MSBuild.exe")
-		end
-		
+		f.assert(err == 0, "Could not find Visual Studio MSBuild.exe")
 		vs.msbuild = res
 	end
 end

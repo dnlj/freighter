@@ -57,6 +57,12 @@ f.error = function(err, level)
 	error("\n\t[Freighter] ".. err, level + 2)
 end
 
+f.assert = function(cond, msg)
+	if not cond then
+		f.error(msg)
+	end
+end
+
 f.log = function(...)
 	io.write("[Freighter] ", ...)
 	io.write("\n")
