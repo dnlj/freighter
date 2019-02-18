@@ -128,7 +128,7 @@ f._fetch = function(crate)
 			
 			local oldwd = os.getcwd()
 			os.chdir(crate.dir)
-			os.execute("git clean -dffx")
+			os.execute("git clean -dfx")
 			os.chdir(oldwd)
 		else
 			os.execute("git clone ".. crate.source .." ".. crate.dir)
@@ -196,9 +196,11 @@ newaction {
 		if sizeof(f._crates) == 0 then return end
 		f._verifyCratesDir()
 		
+		-- Get the action to build for
 		local act = p.action.get(_ARGS[1])
 		f.assert(act, "Invalid action: ".. tostring(_ARGS[1]))
 		
+		-- Build all crates
 		for uid, crate in pairs(f._crates) do
 			f.log("=== ", crate.name, " ===")
 			f._fetch(crate)
