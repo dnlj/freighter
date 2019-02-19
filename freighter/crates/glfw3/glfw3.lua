@@ -38,7 +38,8 @@ local build_vs2017 = function(cfg)
 		end
 	end
 	
-	local dir = CRATE.dir .."/build_".. cfg.arch
+	local dir = CRATE.dir .."/build_".. cfg.config .."_".. cfg.arch
+	f.pushWorkingDir(dir)
 	
 	do -- Make project files
 		local cmakeArgs = {
@@ -49,22 +50,24 @@ local build_vs2017 = function(cfg)
 			"-A ".. arch,
 		}
 		
-		local oldwd = os.getcwd()
-		os.mkdir(dir)
-		os.chdir(dir)
 		os.execute("cmake ".. table.concat(cmakeArgs, " ") .." ..")
-		os.chdir(oldwd)
 	end
 	
 	do -- Build
-		local args = "/t:Build /verbosity:minimal /p:Configuration=".. configU
-		local fileName = dir .."/GLFW.sln"
-		os.execute(f.vs.msbuild .." ".. fileName .." ".. args)
+		local args = {
+			"/t:Build",
+			"/verbosity:minimal",
+			"/p:Configuration=".. configU,
+		}
+		
+		os.execute('"'.. f.vs.msbuild ..'" GLFW.sln '.. table.concat(args, " "))
 	end
 	
 	do -- Organize
-		f.moveFile(dir .."/src/".. configU, CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch, "glfw3.lib")
+		--f.moveFile(dir .."/src/".. configU, CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch, "glfw3.lib")
 	end
+	
+	f.popWorkingDir()
 end
 
 CRATE.build = function(cfg)

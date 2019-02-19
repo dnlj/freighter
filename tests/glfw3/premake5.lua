@@ -7,8 +7,11 @@ freighter.setCratesDirectory("../../freighter/crates")
 -- Main premake settings
 --------------------------------------------------------------------------------
 workspace("TestWorkspace")
-	configurations {"Debug", "Debug2", "Release"}
-	platforms {"x86_64", "x86"}
+	--configurations {"Debug", "Debug2", "Release"}
+	--platforms {"x86_64", "x86"}
+	configurations {"debug"}
+	platforms {"x86_64"}
+	
 	characterset "Unicode"
 	kind "ConsoleApp"
 	language "C++"
