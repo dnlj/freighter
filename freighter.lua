@@ -220,6 +220,7 @@ newaction {
 		local act = p.action.get(_ARGS[1])
 		f.assert(act, "Invalid action: ".. tostring(_ARGS[1]))
 		
+		-- Load Visual Studio settings if required
 		do
 			local vs, year = string.match(act.trigger, "^(vs)(%d%d%d%d)$")
 			if os.host() == "windows" and vs == "vs" then

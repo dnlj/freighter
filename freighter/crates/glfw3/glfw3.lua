@@ -42,7 +42,6 @@ local build_vs2017 = function(cfg)
 	f.pushWorkingDir(dir)
 	
 	do -- Make project files
-		-- TODO: Vs tool version
 		local cmakeArgs = {
 			"-G \"".. f.vs.cmake .."\"",
 			"-DGLFW_BUILD_EXAMPLES=OFF",
