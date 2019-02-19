@@ -10,6 +10,7 @@ local f = freighter
 local sizeof = function(tbl) local c = 0 for _ in pairs(tbl) do c = c + 1 end return c end
 
 f._crates = {}
+f._wdStates = {}
 f.basicConfigString = [[%{freighter.getBasicConfig(cfg.buildcfg)}]]
 
 f.setCratesDirectory = function(dir)
@@ -112,6 +113,7 @@ f._loadCrate = function(cuid)
 	end
 end
 
+-- TODO: Handle timeout
 f._fetch = function(crate)
 	if not crate.source then
 		f.error("No source given for crate")
@@ -126,6 +128,8 @@ f._fetch = function(crate)
 		if alreadyExists then
 			f.log("Crate already in cache. Cleaning.")
 			
+			-- TODO: Change to use push/pop
+			-- TODO: wrap output to f.log
 			local oldwd = os.getcwd()
 			os.chdir(crate.dir)
 			os.execute("git clean -dfx")
@@ -181,6 +185,20 @@ f._progress_bar = function(total, current)
 	io.write("\r", pre, fill, blank, post)
 end
 
+f.pushWorkingDir = function(dir)
+	f.assert(os.mkdir(dir))
+	table.insert(f._wdStates, os.getcwd())
+	os.chdir(dir)
+end
+
+f.popWorkingDir = function()
+	local dir = table.remove(f._wdStates)
+	
+	if dir then
+		os.chdir(dir)
+	end
+end
+
 newaction {
 	trigger = "freighter",
 	description = "Downloads, builds, and use freighter crates.",
@@ -199,7 +217,6 @@ newaction {
 		
 		-- Build all crates
 		for uid, crate in pairs(f._crates) do
-			f.log("=== ", crate.name, " ===")
 			f._fetch(crate)
 			
 			for cfg in p.project.eachconfig(prj) do
