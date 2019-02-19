@@ -64,7 +64,7 @@ local build_vs2017 = function(cfg)
 	end
 	
 	do -- Organize
-		--f.moveFile(dir .."/src/".. configU, CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch, "glfw3.lib")
+		f.moveFile("src/".. configU, CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch, "glfw3.lib")
 	end
 	
 	f.popWorkingDir()
