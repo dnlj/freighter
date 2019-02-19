@@ -17,7 +17,7 @@ CRATE.addLibraries = function()
 end
 
 local build_vs2017 = function(cfg)
-	local configU
+	local config
 	local arch
 	
 	do -- Validate cfg
@@ -32,7 +32,7 @@ local build_vs2017 = function(cfg)
 		
 		-- Config
 		if cfg.config == "debug" or cfg.config == "release" then
-			configU = cfg.config:sub(1,1):upper() .. cfg.config:sub(2)
+			config = cfg.config:sub(1,1):upper() .. cfg.config:sub(2)
 		else
 			f.error("Config ".. cfg.config .." is not supported")
 		end
@@ -58,14 +58,14 @@ local build_vs2017 = function(cfg)
 		local args = {
 			"/t:Build",
 			"/verbosity:minimal",
-			"/p:Configuration=".. configU,
+			"/p:Configuration=".. config,
 		}
 		
 		f.execute('"'.. f.vs.msbuild ..'" GLFW.sln '.. table.concat(args, " "), "[MSBUILD]")
 	end
 	
 	do -- Organize
-		f.moveFile("src/".. configU, CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch, "glfw3.lib")
+		f.moveFile("src/".. config, CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch, "glfw3.lib")
 	end
 	
 	f.popWorkingDir()
