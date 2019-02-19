@@ -140,8 +140,6 @@ f._fetch = function(crate)
 	if ext == ".git" then
 		if alreadyExists then
 			f.log("Crate already in cache. Cleaning.")
-			
-			-- TODO: wrap output to f.log
 			f.pushWorkingDir(crate.dir)
 			f.execute("git clean -dfx", "[GIT]")
 			f.popWorkingDir()
