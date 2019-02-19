@@ -209,8 +209,13 @@ newaction {
 		local act = p.action.get(_ARGS[1])
 		f.assert(act, "Invalid action: ".. tostring(_ARGS[1]))
 		
-		if os.host() == "windows" and string.match(act.trigger, "^(vs)%d%d%d%d$") == "vs" then
-			f.vs = require("freighter/vs")
+		do
+			local vs, year = string.match(act.trigger, "^(vs)(%d%d%d%d)$")
+			if os.host() == "windows" and vs == "vs" then
+				f._vsyear = year
+				f.vs = require("freighter/vs")
+				f._vsyear = nil
+			end
 		end
 		
 		-- Build all crates

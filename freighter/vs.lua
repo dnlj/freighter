@@ -1,6 +1,6 @@
 local vs = {}
 local f = freighter
-local whereArgs = "-prerelease -latest"
+local whereArgs = "-prerelease -sort -nologo -utf8 -format json"
 
 local downloadVSWhere = function()
 	if not os.isfile("vswhere.exe") then
@@ -27,13 +27,10 @@ local downloadVSWhere = function()
 end
 
 local getVSWhereInfo = function()
-	-- TODO: add way to pick version
-	local res, err = os.outputof("\"".. vs.where .."\" -nologo -utf8 -format json ".. whereArgs)
-	
+	local res, err = os.outputof("\"".. vs.where .."\" ".. whereArgs)
 	f.assert(err == 0, "Could not find Visual Studio vswhere.exe")
 
 	local info = json.decode(res)
-	
 	f.assert(#info ~= 0, "No Visual Studio installation found")
 	
 	return info
@@ -42,19 +39,22 @@ end
 local setVSInfo = function()
 	local info = getVSWhereInfo()
 	
-	local max = 1
+	local idx
 	for k,v in pairs(info) do
-		f.assert(v.installationVersion, "Unable to determine Visual Studio version")
-		
-		if v.installationVersion > info[max].installationVersion then
-			max = k
+		f.assert(v.catalog and v.catalog.productLineVersion, "Unable to determine Visual Studio year")
+		if v.catalog.productLineVersion == f._vsyear then
+			idx = k
 		end
 	end
-	local ver = info[max]
+	
+	local ver = info[idx]
 	
 	do -- version
+		f.assert(ver.installationVersion, "Unable to determine Visual Studio version")
 		vs.version = ver.installationVersion
+		
 		vs.major = string.match(vs.version, "^(%d+).")
+		f.assert(ver.installationVersion, "Unable to determine Visual Studio major version")
 	end
 	
 	do -- year
@@ -74,9 +74,14 @@ local setVSInfo = function()
 	end
 	
 	do -- MSBuild
-		local res, err = os.outputof("\"".. vs.where .."\" -nologo -utf8 -find MSBuild/**/Bin/MSBuild.exe ".. whereArgs)
+		local res, err = os.outputof("\"".. vs.where .."\" -find MSBuild/".. vs.major .."*/Bin/MSBuild.exe ".. whereArgs)
 		f.assert(err == 0, "Could not find Visual Studio MSBuild.exe")
-		vs.msbuild = res
+		
+		local info = json.decode(res)
+		f.assert(#info ~= 0, "Could not find Visual Studio MSBuild.exe")
+		f.assert(#info == 1, "Could not determine Visual Studio MSBuild.exe")
+		
+		vs.msbuild = info[1]
 	end
 	
 	do -- Cmake generator
