@@ -40,17 +40,19 @@ local build_vs2017 = function(cfg)
 	
 	local dir = CRATE.dir .."/build_".. cfg.arch
 	
-	do -- Make project files		
-		local cmakeArgs = ""
-			.." -DGLFW_BUILD_EXAMPLES=OFF"
-			.." -DGLFW_BUILD_TESTS=OFF"
-			.." -DGLFW_BUILD_DOCS=OFF"
-			.." -A ".. arch
+	do -- Make project files
+		local cmakeArgs = {
+			"-G \"".. f.vs.cmake .."\"",
+			"-DGLFW_BUILD_EXAMPLES=OFF",
+			"-DGLFW_BUILD_TESTS=OFF",
+			"-DGLFW_BUILD_DOCS=OFF",
+			"-A ".. arch,
+		}
 		
 		local oldwd = os.getcwd()
 		os.mkdir(dir)
 		os.chdir(dir)
-		os.execute('cmake -G "'.. f.vs.cmake ..'" '.. cmakeArgs ..' ..')
+		os.execute("cmake ".. table.concat(cmakeArgs, " ") .." ..")
 		os.chdir(oldwd)
 	end
 	
