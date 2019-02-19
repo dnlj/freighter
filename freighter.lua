@@ -11,6 +11,7 @@ local sizeof = function(tbl) local c = 0 for _ in pairs(tbl) do c = c + 1 end re
 
 f._crates = {}
 f._wdStates = {}
+f.prefix = "[Freighter]"
 f.basicConfigString = [[%{freighter.getBasicConfig(cfg.buildcfg)}]]
 
 f.setCratesDirectory = function(dir)
@@ -55,17 +56,18 @@ end
 
 f.error = function(err, level)
 	level = level or 0
-	error("\n\t[Freighter] ".. err, level + 2)
+	error("\n\t".. f.prefix .." ".. err, level + 2)
 end
 
 f.assert = function(cond, msg)
 	if not cond then
 		f.error(msg, 1)
 	end
+	return cond
 end
 
 f.log = function(...)
-	io.write("[Freighter] ", ...)
+	io.write(f.prefix, " ", ...)
 	io.write("\n")
 end
 
@@ -89,6 +91,17 @@ f.httpDownload = function(url, file, opt)
 	opt.progress = opt.progress or f._progress_bar
 	return http.download(url, file, opt),
 		io.write("\n") and nil or nil
+end
+
+f.execute = function(cmd, prefix)
+	local pipe = f.assert(io.popen(cmd .." 2>&1"), "Could not execute: ".. cmd)
+	prefix = prefix and prefix .." " or ""
+	
+	while true do
+		local data = pipe:read("*line")
+		if not data then break end
+		io.write(f.prefix, " ", prefix, data, "\n")
+	end
 end
 
 f._verifyCratesDir = function()

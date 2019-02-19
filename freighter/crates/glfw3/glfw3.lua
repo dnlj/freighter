@@ -51,7 +51,7 @@ local build_vs2017 = function(cfg)
 			"-A ".. arch,
 		}
 		
-		os.execute("cmake ".. table.concat(cmakeArgs, " ") .." ..")
+		f.execute("cmake ".. table.concat(cmakeArgs, " ") .." ..", "[CMAKE]")
 	end
 	
 	do -- Build
@@ -61,7 +61,7 @@ local build_vs2017 = function(cfg)
 			"/p:Configuration=".. configU,
 		}
 		
-		os.execute('"'.. f.vs.msbuild ..'" GLFW.sln '.. table.concat(args, " "))
+		f.execute('"'.. f.vs.msbuild ..'" GLFW.sln '.. table.concat(args, " "), "[MSBUILD]")
 	end
 	
 	do -- Organize
