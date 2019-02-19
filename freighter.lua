@@ -128,12 +128,10 @@ f._fetch = function(crate)
 		if alreadyExists then
 			f.log("Crate already in cache. Cleaning.")
 			
-			-- TODO: Change to use push/pop
 			-- TODO: wrap output to f.log
-			local oldwd = os.getcwd()
-			os.chdir(crate.dir)
+			f.pushWorkingDir(crate.dir)
 			os.execute("git clean -dfx")
-			os.chdir(oldwd)
+			f.popWorkingDir()
 		else
 			os.execute("git clone ".. crate.source .." ".. crate.dir)
 		end
