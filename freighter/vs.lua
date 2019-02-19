@@ -53,7 +53,8 @@ local setVSInfo = function()
 	local ver = info[max]
 	
 	do -- version
-		vs.installationVersion = ver.installationVersion
+		vs.version = ver.installationVersion
+		vs.major = string.match(vs.version, "^(%d+).")
 	end
 	
 	do -- year
@@ -77,8 +78,14 @@ local setVSInfo = function()
 		f.assert(err == 0, "Could not find Visual Studio MSBuild.exe")
 		vs.msbuild = res
 	end
+	
+	do -- Cmake generator
+		vs.cmake = "Visual Studio ".. vs.major .." ".. vs.year
+	end
 end
 
 downloadVSWhere()
 vs.where = os.getcwd() .."/vswhere.exe"
 setVSInfo()
+
+return vs

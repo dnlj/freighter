@@ -183,9 +183,7 @@ end
 
 
 -- TODO: Only include vs stuff if needed
-require("freighter/vs")
-f.vs = {}
-f.vs["2017"] = require("freighter/vs2017")
+f.vs = require("freighter/vs")
 
 
 newaction {

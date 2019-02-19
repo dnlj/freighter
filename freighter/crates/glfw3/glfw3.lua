@@ -17,16 +17,15 @@ CRATE.addLibraries = function()
 end
 
 local build_vs2017 = function(cfg)
-	local vs = f.vs["2017"]
-	local cmake
 	local configU
+	local arch
 	
 	do -- Validate cfg
 		-- Architecture
 		if cfg.arch == "x86" then
-			cmake = vs.cmake32
+			arch = "Win32"
 		elseif cfg.arch == "x86_64" then
-			cmake = vs.cmake64
+			arch = "x64"
 		else
 			f.error("Architecture ".. cfg.arch .." is not supported")
 		end
@@ -46,18 +45,19 @@ local build_vs2017 = function(cfg)
 			.." -DGLFW_BUILD_EXAMPLES=OFF"
 			.." -DGLFW_BUILD_TESTS=OFF"
 			.." -DGLFW_BUILD_DOCS=OFF"
+			.." -A ".. arch
 		
 		local oldwd = os.getcwd()
 		os.mkdir(dir)
 		os.chdir(dir)
-		os.execute('cmake -G "'.. cmake ..'" '.. cmakeArgs ..' ..')
+		os.execute('cmake -G "'.. f.vs.cmake ..'" '.. cmakeArgs ..' ..')
 		os.chdir(oldwd)
 	end
 	
 	do -- Build
 		local args = "/t:Build /verbosity:minimal /p:Configuration=".. configU
 		local fileName = dir .."/GLFW.sln"
-		os.execute(vs.msbuild .." ".. fileName .." ".. args)
+		os.execute(f.vs.msbuild .." ".. fileName .." ".. args)
 	end
 	
 	do -- Organize
