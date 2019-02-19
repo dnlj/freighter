@@ -181,11 +181,6 @@ f._progress_bar = function(total, current)
 	io.write("\r", pre, fill, blank, post)
 end
 
-
--- TODO: Only include vs stuff if needed
-f.vs = require("freighter/vs")
-
-
 newaction {
 	trigger = "freighter",
 	description = "Downloads, builds, and use freighter crates.",
@@ -197,6 +192,10 @@ newaction {
 		-- Get the action to build for
 		local act = p.action.get(_ARGS[1])
 		f.assert(act, "Invalid action: ".. tostring(_ARGS[1]))
+		
+		if os.host() == "windows" and string.match(act.trigger, "^(vs)%d%d%d%d$") == "vs" then
+			f.vs = require("freighter/vs")
+		end
 		
 		-- Build all crates
 		for uid, crate in pairs(f._crates) do
