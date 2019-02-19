@@ -143,10 +143,10 @@ f._fetch = function(crate)
 			
 			-- TODO: wrap output to f.log
 			f.pushWorkingDir(crate.dir)
-			os.execute("git clean -dfx")
+			f.execute("git clean -dfx", "[GIT]")
 			f.popWorkingDir()
 		else
-			os.execute("git clone ".. crate.source .." ".. crate.dir)
+			f.execute("git clone ".. crate.source .." ".. crate.dir, "[GIT]")
 		end
 	elseif ext == ".zip" then
 		f.error("TODO: Zip not currently supported.")
