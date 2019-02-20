@@ -51,8 +51,7 @@ CRATE.build = function(cfg)
 			"-maxcpucount",
 			"/t:Build",
 			"/verbosity:minimal",
-			-- TODO: why does output path not work?
-			"/p:OutputPath=\"".. CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch .."\"",
+			"/p:OutDir=\"".. CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch .."/\"",
 		}
 		
 		if cfg.config == "debug" or cfg.config == "release" then
@@ -64,11 +63,7 @@ CRATE.build = function(cfg)
 		end
 		
 		-- Build
-		-- TODO: temp
 		f.execute('"'.. f.vs.msbuild ..'" GLFW.sln '.. table.concat(args, " "), "[MSBUILD]")
-		
-		-- Organize
-		--f.moveFile("src/".. config, CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch, "glfw3.lib")
 	end
 	
 	f.popWorkingDir()

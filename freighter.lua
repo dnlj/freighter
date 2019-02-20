@@ -163,8 +163,6 @@ f._build = function(crate, act, cfg)
 	cc._act = act
 	cc._cfg = cfg
 	
-	f.log("Building ", crate.name, " (", table.concat({cc.type, cc.arch, cc.config}, ", "), ")")
-	
 	crate._configs = crate._configs or {}
 	
 	-- Skip duplicate configs
@@ -176,6 +174,7 @@ f._build = function(crate, act, cfg)
 		end
 	end
 	
+	f.log("Building ", crate.name, " (", table.concat({cc.type, cc.arch, cc.config}, ", "), ")")
 	table.insert(crate._configs, cc)
 	
 	if crate.build then
