@@ -67,7 +67,7 @@ local setVSInfo = function()
 	
 	do -- devenv
 		if ver.productPath then
-			vs.devenv = ver.productPath
+			vs.devenv = path.translate(ver.productPath, "/")
 		else
 			f.error("Could not find Visual Studio devenv.exe")
 		end
@@ -81,7 +81,7 @@ local setVSInfo = function()
 		f.assert(#info ~= 0, "Could not find Visual Studio MSBuild.exe")
 		f.assert(#info == 1, "Could not determine Visual Studio MSBuild.exe")
 		
-		vs.msbuild = info[1]
+		vs.msbuild = path.translate(info[1], "/")
 	end
 	
 	do -- Cmake generator
@@ -90,7 +90,7 @@ local setVSInfo = function()
 end
 
 downloadVSWhere()
-vs.where = os.getcwd() .."/vswhere.exe"
+vs.where = path.translate(os.getcwd() .."/vswhere.exe", "/")
 setVSInfo()
 
 return vs

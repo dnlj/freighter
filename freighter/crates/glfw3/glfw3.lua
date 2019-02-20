@@ -16,72 +16,62 @@ CRATE.addLibraries = function()
 	return "glfw3"
 end
 
-local build_vs2017 = function(cfg)
-	local config
-	local arch
+CRATE.build = function(cfg)
+	-- TODO: split into generate and build phases for simplification
+	local vs, year = string.match(cfg.type, "^(vs)(%d%d%d%d)$")
+	local cmakeArgs = {
+		"-DGLFW_BUILD_EXAMPLES=OFF",
+		"-DGLFW_BUILD_TESTS=OFF",
+		"-DGLFW_BUILD_DOCS=OFF",
+	}
 	
-	do -- Validate cfg
-		-- Architecture
-		if cfg.arch == "x86" then
-			arch = "Win32"
-		elseif cfg.arch == "x86_64" then
-			arch = "x64"
-		else
-			f.error("Architecture ".. cfg.arch .." is not supported")
-		end
-		
-		-- Config
-		if cfg.config == "debug" or cfg.config == "release" then
-			config = cfg.config:sub(1,1):upper() .. cfg.config:sub(2)
-		else
-			f.error("Config ".. cfg.config .." is not supported")
-		end
-	end
+	local archMap = {
+		["vs"] = {
+			["x86"] = "Win32",
+			["x86_64"] = "x64",
+		}
+	}
 	
 	local dir = CRATE.dir .."/build_".. cfg.config .."_".. cfg.arch
 	f.pushWorkingDir(dir)
 	
-	do -- Make project files
-		local cmakeArgs = {
-			"-G \"".. f.vs.cmake .."\"",
-			"-DGLFW_BUILD_EXAMPLES=OFF",
-			"-DGLFW_BUILD_TESTS=OFF",
-			"-DGLFW_BUILD_DOCS=OFF",
-			"-A ".. arch,
-		}
-		
-		f.execute("cmake ".. table.concat(cmakeArgs, " ") .." ..", "[CMAKE]")
+	if vs then
+		local arch = archMap["vs"][cfg.arch]
+		f.assert(arch, "Architecture ".. cfg.arch .." is not supported")
+		table.insert(cmakeArgs, "-G \"".. f.vs.cmake .."\"")
+		table.insert(cmakeArgs, "-A ".. arch)
 	end
 	
-	do -- Build
+	-- Make project files
+	f.execute("cmake ".. table.concat(cmakeArgs, " ") .." ..", "[CMAKE]")
+	
+	if vs then
+		local config
 		local args = {
+			"-maxcpucount",
 			"/t:Build",
 			"/verbosity:minimal",
-			"/p:Configuration=".. config,
+			-- TODO: why does output path not work?
+			"/p:OutputPath=\"".. CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch .."\"",
 		}
 		
+		if cfg.config == "debug" or cfg.config == "release" then
+			config = cfg.config:sub(1,1):upper() .. cfg.config:sub(2)
+			config = cfg.config
+			table.insert(args, "/p:Configuration=".. config)
+		else
+			f.error("Config ".. cfg.config .." is not supported")
+		end
+		
+		-- Build
+		-- TODO: temp
 		f.execute('"'.. f.vs.msbuild ..'" GLFW.sln '.. table.concat(args, " "), "[MSBUILD]")
-	end
-	
-	do -- Organize
-		f.moveFile("src/".. config, CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch, "glfw3.lib")
+		
+		-- Organize
+		--f.moveFile("src/".. config, CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch, "glfw3.lib")
 	end
 	
 	f.popWorkingDir()
-end
-
-CRATE.build = function(cfg)
-	if not cfg.type then
-		f.error("No build type specified")
-	end
-	
-	local vs, year = string.match(cfg.type, "^(vs)(%d%d%d%d)$")
-	
-	if vs and year == "2017" then
-		build_vs2017(cfg)
-	else
-		f.error("Build type \"".. cfg.type .."\" is not supported")
-	end
 end
 
 return CRATE

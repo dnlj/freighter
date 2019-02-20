@@ -94,11 +94,12 @@ f.httpDownload = function(url, file, opt)
 end
 
 f.execute = function(cmd, prefix)
+	cmd = '"'.. cmd ..'"' -- TODO: not sure if this works on linux (see https://stackoverflow.com/questions/27333777/)
 	local pipe = f.assert(io.popen(cmd .." 2>&1"), "Could not execute: ".. cmd)
 	prefix = prefix and prefix .." " or ""
 	
 	while true do
-		local data = pipe:read("*line")
+		local data = pipe:read()
 		if not data then break end
 		io.write(f.prefix, " ", prefix, data, "\n")
 	end
@@ -207,6 +208,7 @@ f.popWorkingDir = function()
 		os.chdir(dir)
 	end
 end
+
 
 newaction {
 	trigger = "freighter",
