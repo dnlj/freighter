@@ -32,6 +32,8 @@ CRATE.build = function(cfg)
 		}
 	}
 	
+	if not vs then f.error("Action ".. cfg.typ .." not supported") end
+	
 	local dir = CRATE.dir .."/build_".. cfg.config .."_".. cfg.arch
 	f.pushWorkingDir(dir)
 	
