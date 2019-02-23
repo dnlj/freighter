@@ -224,7 +224,11 @@ newaction {
 		-- Load Visual Studio settings if required
 		do
 			local vs, year = string.match(act.trigger, "^(vs)(%d%d%d%d)$")
-			if os.host() == "windows" and vs == "vs" then
+			if vs == "vs" then
+				f.assert(os.host() == "windows",
+					"Unable to build Visual Studio projects on non-windows systems (action = ".. act.trigger ..")"
+				)
+
 				f._vsyear = year
 				f.vs = require("freighter/vs")
 				f._vsyear = nil
