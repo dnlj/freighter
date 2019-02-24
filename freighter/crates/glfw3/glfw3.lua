@@ -47,7 +47,6 @@ end
 
 CRATE.build = function(cfg)
 	local vs, year = string.match(cfg.type, "^(vs)(%d%d%d%d)$")
-	if not vs then f.error("Action ".. cfg.type .." not supported") end
 	
 	local cmakeArgs = {
 		"-DGLFW_BUILD_EXAMPLES=OFF",
@@ -64,7 +63,13 @@ CRATE.build = function(cfg)
 	
 	local dir = CRATE.dir .."/build_".. cfg.config .."_".. cfg.arch
 	f.pushWorkingDir(dir)
-	build_vs(cfg, archMap, cmakeArgs)
+	
+	if vs then
+		build_vs(cfg, archMap, cmakeArgs)
+	else
+		f.error("Action ".. cfg.type .." not supported")
+	end
+	
 	f.popWorkingDir()
 end
 
