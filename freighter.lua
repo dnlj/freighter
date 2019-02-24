@@ -13,6 +13,7 @@ f._crates = {}
 f._wdStates = {}
 f.prefix = "[Freighter]"
 f.basicConfigString = [[%{freighter.getBasicConfig(cfg.buildcfg)}]]
+f._tempErrorPrefix = nil
 
 f.setCratesDirectory = function(dir)
 	f._cratesDir = path.normalize(path.getabsolute(dir))
@@ -56,7 +57,14 @@ end
 
 f.error = function(err, level)
 	level = level or 0
-	error("\n\t".. f.prefix .." ".. err, level + 2)
+	error(
+		"\n\t"
+		.. f.prefix
+		.. (f._tempErrorPrefix or "")
+		.. (err:sub(1,1) == "[" and "" or " ")
+		.. err
+		, level + 2
+	)
 end
 
 f.assert = function(cond, msg)
@@ -67,7 +75,11 @@ f.assert = function(cond, msg)
 end
 
 f.log = function(...)
-	io.write(f.prefix, " ", ...)
+	io.write(
+		f.prefix,
+		f._tempErrorPrefix or "",
+		select(1, ...):sub(1,1) == "[" and "" or " ",
+		...)
 	io.write("\n")
 end
 
@@ -101,7 +113,7 @@ f.execute = function(cmd, prefix)
 	while true do
 		local data = pipe:read()
 		if not data then break end
-		io.write(f.prefix, " ", prefix, data, "\n")
+		f.log(prefix, data)
 	end
 end
 
@@ -237,6 +249,7 @@ newaction {
 		
 		-- Build all crates
 		for uid, crate in pairs(f._crates) do
+			f._tempErrorPrefix = "[".. uid .."]"
 			f._fetch(crate)
 			
 			for cfg in p.project.eachconfig(prj) do
@@ -249,5 +262,7 @@ newaction {
 				f._build(crate, act, cfg)
 			end
 		end
+		
+		f._tempErrorPrefix = nil
 	end,
 }
