@@ -16,9 +16,39 @@ CRATE.addLibraries = function()
 	return "glfw3"
 end
 
+local build_vs = function(cfg, archMap, cmakeArgs)
+	local arch = archMap["vs"][cfg.arch]
+	f.assert(arch, "Architecture ".. cfg.arch .." is not supported")
+	table.insert(cmakeArgs, "-G \"".. f.vs.cmake .."\"")
+	table.insert(cmakeArgs, "-A ".. arch)
+	
+	-- Make project files
+	f.execute("cmake ".. table.concat(cmakeArgs, " ") .." ..", "[CMAKE]")
+	
+	local config
+	local args = {
+		"-maxcpucount",
+		"/t:Build",
+		"/verbosity:minimal",
+		"/p:OutDir=\"".. CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch .."/\"",
+	}
+	
+	if cfg.config == "debug" or cfg.config == "release" then
+		config = cfg.config:sub(1,1):upper() .. cfg.config:sub(2)
+		config = cfg.config
+		table.insert(args, "/p:Configuration=".. config)
+	else
+		f.error("Config ".. cfg.config .." is not supported")
+	end
+	
+	-- Build
+	f.execute('"'.. f.vs.msbuild ..'" GLFW.sln '.. table.concat(args, " "), "[MSBUILD]")
+end
+
 CRATE.build = function(cfg)
-	-- TODO: split into generate and build phases for simplification
 	local vs, year = string.match(cfg.type, "^(vs)(%d%d%d%d)$")
+	if not vs then f.error("Action ".. cfg.type .." not supported") end
+	
 	local cmakeArgs = {
 		"-DGLFW_BUILD_EXAMPLES=OFF",
 		"-DGLFW_BUILD_TESTS=OFF",
@@ -32,42 +62,9 @@ CRATE.build = function(cfg)
 		}
 	}
 	
-	if not vs then f.error("Action ".. cfg.type .." not supported") end
-	
 	local dir = CRATE.dir .."/build_".. cfg.config .."_".. cfg.arch
 	f.pushWorkingDir(dir)
-	
-	if vs then
-		local arch = archMap["vs"][cfg.arch]
-		f.assert(arch, "Architecture ".. cfg.arch .." is not supported")
-		table.insert(cmakeArgs, "-G \"".. f.vs.cmake .."\"")
-		table.insert(cmakeArgs, "-A ".. arch)
-	end
-	
-	-- Make project files
-	f.execute("cmake ".. table.concat(cmakeArgs, " ") .." ..", "[CMAKE]")
-	
-	if vs then
-		local config
-		local args = {
-			"-maxcpucount",
-			"/t:Build",
-			"/verbosity:minimal",
-			"/p:OutDir=\"".. CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch .."/\"",
-		}
-		
-		if cfg.config == "debug" or cfg.config == "release" then
-			config = cfg.config:sub(1,1):upper() .. cfg.config:sub(2)
-			config = cfg.config
-			table.insert(args, "/p:Configuration=".. config)
-		else
-			f.error("Config ".. cfg.config .." is not supported")
-		end
-		
-		-- Build
-		f.execute('"'.. f.vs.msbuild ..'" GLFW.sln '.. table.concat(args, " "), "[MSBUILD]")
-	end
-	
+	build_vs(cfg, archMap, cmakeArgs)
 	f.popWorkingDir()
 end
 
