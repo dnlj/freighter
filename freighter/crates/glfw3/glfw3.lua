@@ -35,7 +35,6 @@ local build_vs = function(cfg, archMap, cmakeArgs)
 	
 	if cfg.config == "debug" or cfg.config == "release" then
 		config = cfg.config:sub(1,1):upper() .. cfg.config:sub(2)
-		config = cfg.config
 		table.insert(args, "/p:Configuration=".. config)
 	else
 		f.error("Config ".. cfg.config .." is not supported")
