@@ -65,6 +65,11 @@ local setVSInfo = function()
 		end
 	end
 	
+	do -- path
+		f.assert(ver.installationPath, "Unable to determine Visual Studio installation path")
+		vs.installPath = ver.installationPath
+	end
+	
 	do -- devenv
 		if ver.productPath then
 			vs.devenv = path.translate(ver.productPath, "/")
@@ -82,6 +87,17 @@ local setVSInfo = function()
 		f.assert(#info == 1, "Could not determine Visual Studio MSBuild.exe")
 		
 		vs.msbuild = path.translate(info[1], "/")
+	end
+	
+	do -- devcmd
+		vs.devcmd = vs.installPath .."/Common7/Tools/vsdevcmd.bat"
+		f.assert(os.isfile(vs.devcmd), "Could not find Visual Studio command prompt")
+	end
+	
+	do -- WindowsSDKVersion
+		local res, err = os.outputof("get_WindowsSDKVersion.bat \"".. vs.devcmd .."\"")
+		f.assert(err == 0, "Could not determine WindowsSDKVersion")
+		vs.sdkVersion = res:sub(1,-2)
 	end
 	
 	do -- Cmake generator
