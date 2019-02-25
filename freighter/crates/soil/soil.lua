@@ -5,6 +5,7 @@ CRATE.name = "Simple OpenGL Image Library"
 CRATE.source = "http://www.lonesock.net/files/soil.zip"
 
 CRATE.addIncludeDirectories = function()
+	-- TODO: UPDATE to be correct
 	return CRATE.dir .."/include"
 end
 
