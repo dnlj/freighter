@@ -160,7 +160,28 @@ f._fetch = function(crate)
 			f.execute("git clone ".. crate.source .." ".. crate.dir, "[GIT]")
 		end
 	elseif ext == ".zip" then
-		f.error("TODO: Zip not currently supported.")
+		os.mkdir(crate.dir)
+		local file = crate.dir .."/".. crate.uid ..".zip"
+		
+		if os.isfile(file) then
+			for k,v in pairs(os.match(crate.dir .."/*")) do
+				if v ~= file then
+					if os.isfile(v) then
+						os.remove(v)
+					else
+						os.rmdir(v)
+					end
+				end
+			end
+		else
+			local status = f.httpDownload(crate.source, file)
+			f.assert(status == "OK", "Unable to download: ".. crate.source)
+		end
+		
+		zip.extract(file, crate.dir)
+		for _, v in pairs(os.matchfiles(crate.dir .."/**")) do
+			f.assert(os.chmod(v, 777))
+		end
 	else
 		f.error("Unknown source type")
 	end
@@ -259,7 +280,9 @@ newaction {
 				)
 				
 				-- TODO: Allow some kind of mapping/settings for builds. Look into using p.api.register
+				f.pushWorkingDir(crate.dir)
 				f._build(crate, act, cfg)
+				f.popWorkingDir()
 			end
 		end
 		
