@@ -44,6 +44,24 @@ local build_vs = function(cfg, archMap, cmakeArgs)
 	f.execute('"'.. f.vs.msbuild ..'" GLFW.sln '.. table.concat(args, " "), "[MSBUILD]")
 end
 
+local build_gmake = function(cfg, archMap, cmakeArgs)
+	local arch = archMap["gmake"][cfg.arch]
+	f.assert(arch, "Architecture ".. cfg.arch .." is not supported")
+
+	table.insert(cmakeArgs, "-G \"Unix Makefiles\"")
+	table.insert(cmakeArgs, "-DCMAKE_CXX_FLAGS=\"-m".. arch .."\"")
+	table.insert(cmakeArgs, "-DCMAKE_C_FLAGS=\"-m".. arch .."\"")
+
+	-- Make project files
+	f.execute("cmake ".. table.concat(cmakeArgs, " ") .." ..", "[CMAKE]")
+
+	-- Build
+	f.execute("make", "[MAKE]")
+
+	-- Organize
+	f.moveFile("src", CRATE.dir .."/lib/".. cfg.config .."_".. cfg.arch, "libglfw3.a")
+end
+
 CRATE.build = function(cfg)
 	local vs, year = string.match(cfg.type, "^(vs)(%d%d%d%d)$")
 	
@@ -57,7 +75,11 @@ CRATE.build = function(cfg)
 		["vs"] = {
 			["x86"] = "Win32",
 			["x86_64"] = "x64",
-		}
+		},
+		["gmake"] = {
+			["x86"] = "32",
+			["x86_64"] = "64",
+		},
 	}
 	
 	local dir = CRATE.dir .."/build_".. cfg.config .."_".. cfg.arch
@@ -65,6 +87,8 @@ CRATE.build = function(cfg)
 	
 	if vs then
 		build_vs(cfg, archMap, cmakeArgs)
+	elseif cfg.type == "gmake" then
+		build_gmake(cfg, archMap, cmakeArgs)
 	else
 		f.error("Action ".. cfg.type .." not supported")
 	end

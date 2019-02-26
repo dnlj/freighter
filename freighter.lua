@@ -106,7 +106,10 @@ f.httpDownload = function(url, file, opt)
 end
 
 f.execute = function(cmd, prefix)
-	cmd = '"'.. cmd ..'"' -- TODO: not sure if this works on linux (see https://stackoverflow.com/questions/27333777/)
+	if os.host() == "windows" then
+		cmd = '"'.. cmd ..'"'
+	end
+	
 	local pipe = f.assert(io.popen(cmd .." 2>&1"), "Could not execute: ".. cmd)
 	prefix = prefix and prefix .." " or ""
 	

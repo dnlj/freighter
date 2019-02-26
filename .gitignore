@@ -3,6 +3,8 @@ premake5.exe
 premake5
 .vscode
 **/vswhere.exe
+tests/**/Makefile
+tests/**/*.make
 
 **/.vs
 **.vcxproj
