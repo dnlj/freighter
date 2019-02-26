@@ -55,3 +55,10 @@ project("TestProject")
 	files {
 		"*.cpp"
 	}
+	
+	filter "system:linux"
+		links {
+			"dl",
+			"pthread",
+			"X11",
+		}
