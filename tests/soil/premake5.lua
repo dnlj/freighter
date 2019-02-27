@@ -55,3 +55,8 @@ project("TestProject")
 	files {
 		"*.cpp"
 	}
+	
+	filter "system:windows"
+		links {
+			"opengl32"
+		}

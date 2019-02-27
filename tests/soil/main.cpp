@@ -1,33 +1,37 @@
-#include <GLFW/glfw3.h>
+#include <iostream>
+#include <string_view>
+#include <algorithm>
+#include <SOIL.h>
+
+void check(bool value, std::string_view msg) {
+	if (!value) {
+		std::cout << "FAILURE: ";
+	} else {
+		std::cout << "SUCCESS: ";
+	}
+	std::cout << msg << "\n";
+}
 
 int main(void) {
-	GLFWwindow* window;
+	unsigned char data[4 * 4 * 3] = {
+		255, 000, 000,    000, 255, 000,    000, 255, 255,    255, 000, 255,
+		000, 000, 255,    255, 255, 255,    255, 255, 000,    000, 000, 000,
+		000, 255, 255,    255, 000, 255,    255, 000, 000,    000, 255, 000,
+		255, 255, 000,    000, 000, 000,    000, 000, 255,    255, 255, 255,
+	};
 
-	/* Initialize the library */
-	if (!glfwInit()) {
-		return -1;
-	}
+	int width;
+	int height;
+	int channels;
+	auto image = SOIL_load_image("colors.bmp", &width, &height, &channels, SOIL_LOAD_RGB);
+	
+	check(image != nullptr, "Image loaded");
+	check(width == 4, "Correct width");
+	check(height == 4, "Correct height");
+	check(channels == 3, "Correct channels");
+	check(std::equal(image, image + width * height * channels, data), "Correct data");
 
-	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
-
-	if (!window) {
-		glfwTerminate();
-		return -1;
-	}
-
-	/* Make the window's context current */
-	glfwMakeContextCurrent(window);
-
-	/* Loop until the user closes the window */
-	while (!glfwWindowShouldClose(window)) {
-		/* Swap front and back buffers */
-		glfwSwapBuffers(window);
-
-		/* Poll for and process events */
-		glfwPollEvents();
-	}
-
-	glfwTerminate();
+	SOIL_free_image_data(image);
+	getchar();
 	return 0;
 }
